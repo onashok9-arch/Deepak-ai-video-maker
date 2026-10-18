@@ -1,0 +1,180 @@
+
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deepak AI Video Maker</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;font-family:Arial,sans-serif;
+ background:#101426;color:#fff;padding:18px
+}
+.container{max-width:700px;margin:auto}
+header{text-align:center;padding:20px 0}
+header h1{color:#ffbd59;font-size:29px}
+header p{color:#c7cbe0}
+.card{
+ background:#1c2340;padding:18px;border-radius:16px;
+ margin:16px 0;border:1px solid #343c60
+}
+label{display:block;margin:14px 0 8px;font-weight:bold}
+input,textarea,select{
+ width:100%;padding:13px;border-radius:9px;
+ border:1px solid #505979;background:#11182d;
+ color:white;font-size:16px
+}
+textarea{min-height:130px;resize:vertical}
+button{
+ width:100%;padding:14px;margin-top:12px;border:0;
+ border-radius:10px;background:#ffbd59;color:#211400;
+ font-weight:bold;font-size:16px;cursor:pointer
+}
+.secondary{background:#394566;color:white}
+.preview{
+ width:100%;max-height:320px;object-fit:contain;
+ margin-top:12px;border-radius:12px;display:none;
+ background:#0c1020
+}
+.note{color:#bfc6df;font-size:13px;line-height:1.6}
+#status{white-space:pre-wrap;line-height:1.7;color:#a9f5bd}
+footer{text-align:center;color:#aeb5d0;padding:20px}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<h1>🎬 Deepak AI Video Maker</h1>
+<p>अपनी कहानी और फोटो से वीडियो बनाने की शुरुआत करें</p>
+</header>
+
+<div class="card">
+<h2>📸 1. अपनी फोटो चुनें</h2>
+<label for="photos">मोबाइल से एक या अधिक फोटो अपलोड करें</label>
+<input id="photos" type="file" accept="image/*" multiple>
+<img id="preview" class="preview" alt="फोटो प्रीव्यू">
+<p id="photoInfo" class="note">अभी कोई फोटो नहीं चुनी गई है।</p>
+</div>
+
+<div class="card">
+<h2>✍️ 2. अपनी कहानी लिखें</h2>
+<label for="story">वीडियो में क्या दिखाना है?</label>
+<textarea id="story" placeholder="यहाँ अपनी कहानी लिखें... उदाहरण: माँ दुर्गा की महिमा और भक्त की कहानी।"></textarea>
+
+<label for="voice">आवाज़ चुनें</label>
+<select id="voice">
+<option value="hi-IN">हिंदी आवाज़</option>
+<option value="en-IN">भारतीय अंग्रेज़ी आवाज़</option>
+</select>
+<button type="button" onclick="speakStory()">🔊 कहानी की आवाज़ सुनें</button>
+<button type="button" class="secondary" onclick="stopVoice()">आवाज़ बंद करें</button>
+<p class="note">आवाज़ आपके ब्राउज़र में उपलब्ध वॉइस पर निर्भर करेगी।</p>
+</div>
+
+<div class="card">
+<h2>🎥 3. वीडियो का प्रकार चुनें</h2>
+<label for="style">आप किस तरह का वीडियो चाहते हैं?</label>
+<select id="style">
+<option value="motion">1. फोटो में कैमरा मूवमेंट और ज़ूम</option>
+<option value="animated">2. AI से एनिमेटेड सीन</option>
+<option value="choice">3. दोनों विकल्पों वाला वीडियो</option>
+</select>
+
+<label for="duration">वीडियो की अवधि</label>
+<select id="duration">
+<option value="1">1 मिनट</option>
+<option value="5">5 मिनट</option>
+<option value="10" selected>10 मिनट</option>
+<option value="30">30 मिनट</option>
+</select>
+
+<button type="button" onclick="prepareVideo()">🎬 वीडियो प्रोजेक्ट तैयार करें</button>
+<p id="status"></p>
+</div>
+
+<div class="card">
+<h2>💳 क्रेडिट प्लान</h2>
+<p>🆓 पहले 5 वीडियो मुफ्त — प्रस्तावित प्लान</p>
+<p>₹10 — 7 दिन का प्लान</p>
+<p>₹30 — 30 दिन का प्लान</p>
+<p class="note">ये केवल प्रस्तावित कीमतें हैं। अभी भुगतान या क्रेडिट सिस्टम सक्रिय नहीं है। इसे चलाने के लिए सुरक्षित बैकएंड और पेमेंट सिस्टम जोड़ना होगा।</p>
+</div>
+
+<footer>
+Deepak AI Video Maker © 2026
+</footer>
+</div>
+
+<script>
+const photoInput = document.getElementById("photos");
+const preview = document.getElementById("preview");
+const photoInfo = document.getElementById("photoInfo");
+let selectedPhotoURL = "";
+
+photoInput.addEventListener("change", function(){
+  const files = Array.from(this.files || []);
+  if(selectedPhotoURL) URL.revokeObjectURL(selectedPhotoURL);
+  if(!files.length){
+    preview.style.display = "none";
+    photoInfo.textContent = "अभी कोई फोटो नहीं चुनी गई है।";
+    return;
+  }
+  selectedPhotoURL = URL.createObjectURL(files[0]);
+  preview.src = selectedPhotoURL;
+  preview.style.display = "block";
+  photoInfo.textContent = files.length + " फोटो चुनी गईं। पहली फोटो का प्रीव्यू दिख रहा है।";
+});
+
+function speakStory(){
+  const text = document.getElementById("story").value.trim();
+  if(!text){alert("पहले अपनी कहानी लिखिए।");return;}
+  if(!("speechSynthesis" in window)){
+    alert("आपका ब्राउज़र टेक्स्ट-टू-स्पीच सपोर्ट नहीं करता।");
+    return;
+  }
+  speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = document.getElementById("voice").value;
+  utterance.rate = 0.9;
+  const voices = speechSynthesis.getVoices();
+  const preferred = voices.find(v =>
+    v.lang.toLowerCase().startsWith(
+      utterance.lang.toLowerCase().slice(0,2)
+    )
+  );
+  if(preferred) utterance.voice = preferred;
+  speechSynthesis.speak(utterance);
+}
+
+function stopVoice(){
+  if("speechSynthesis" in window) speechSynthesis.cancel();
+}
+
+function prepareVideo(){
+  const story = document.getElementById("story").value.trim();
+  const photos = photoInput.files;
+  const style = document.getElementById("style").value;
+  const duration = document.getElementById("duration").value;
+  const status = document.getElementById("status");
+
+  if(!story){alert("पहले अपनी कहानी लिखिए।");return;}
+  if(!photos.length){alert("पहले कम से कम एक फोटो अपलोड कीजिए।");return;}
+
+  const names = {
+    motion:"फोटो में कैमरा मूवमेंट",
+    animated:"AI एनिमेटेड सीन",
+    choice:"मूवमेंट और एनिमेशन विकल्प"
+  };
+
+  status.textContent =
+    "प्रोजेक्ट की जानकारी तैयार है।\n" +
+    "फोटो: " + photos.length + "\n" +
+    "अवधि: " + duration + " मिनट\n" +
+    "शैली: " + names[style] + "\n\n" +
+    "ध्यान दें: यह डेमो अभी MP4 वीडियो नहीं बनाता। " +
+    "अगले चरण में वीडियो रेंडरिंग, आवाज़ और डाउनलोड की सुविधा जोड़नी होगी।";
+}
+</script>
+</body>
+</html>
